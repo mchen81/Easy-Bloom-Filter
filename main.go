@@ -11,7 +11,7 @@ type BloomFilter struct {
 	filters int
 	hashs   int
 	bs      *bitset.BitSet
-	seed    int
+	seed    uint32
 	count   int
 }
 
@@ -22,16 +22,18 @@ func NewBloomFilter() *BloomFilter {
 
 func (bf *BloomFilter) put(data []byte) {
 	bf.count++
-	for i := 0; i < bf.seed; i++ {
-		p := murmur3.Sum32(data) % uint32(bf.filters)
+	var i uint32
+	for i = 0; i < bf.seed; i++ {
+		p := murmur3.Sum32WithSeed(data, i) % uint32(bf.filters)
 		bf.bs.Set(uint(p))
 	}
 }
 
 func (bf *BloomFilter) check(data []byte) bool {
 	contain := true
-	for i := 0; i < bf.seed; i++ {
-		p := murmur3.Sum32(data) % uint32(bf.filters)
+	var i uint32
+	for i = 0; i < bf.seed; i++ {
+		p := murmur3.Sum32WithSeed(data, i) % uint32(bf.filters)
 		contain = contain && bf.bs.Test(uint(p))
 	}
 	return contain
