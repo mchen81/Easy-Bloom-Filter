@@ -9,31 +9,30 @@ import (
 
 type BloomFilter struct {
 	filters int
-	hashs   int
+	hashs   uint32
 	bs      *bitset.BitSet
-	seed    uint32
 	count   int
 }
 
 func NewBloomFilter() *BloomFilter {
 	var b bitset.BitSet
-	return &BloomFilter{10000, 3, &b, 3, 0}
+	return &BloomFilter{10000, 3, &b, 0}
 }
 
 func (bf *BloomFilter) put(data []byte) {
 	bf.count++
-	var i uint32
-	for i = 0; i < bf.seed; i++ {
-		p := murmur3.Sum32WithSeed(data, i) % uint32(bf.filters)
+	var seed uint32
+	for seed = 0; seed < bf.hashs; seed++ {
+		p := murmur3.Sum32WithSeed(data, seed) % uint32(bf.filters)
 		bf.bs.Set(uint(p))
 	}
 }
 
 func (bf *BloomFilter) check(data []byte) bool {
 	contain := true
-	var i uint32
-	for i = 0; i < bf.seed; i++ {
-		p := murmur3.Sum32WithSeed(data, i) % uint32(bf.filters)
+	var seed uint32
+	for seed = 0; seed < bf.hashs; seed++ {
+		p := murmur3.Sum32WithSeed(data, seed) % uint32(bf.filters)
 		contain = contain && bf.bs.Test(uint(p))
 	}
 	return contain
