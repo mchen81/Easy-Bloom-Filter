@@ -1,8 +1,10 @@
-# SImple-Bloom-Filter
-TODO
-
-# Plan 
+# Goal 
 Make a really simple bloom filter which only has put() and get()
+
+# Methods
+
+1. put(data []byte) : put any data in byte array format.
+2. check(data []byte) bool : to check if the data exists in Bloom Filter(false positive happens).
 
 # Resource
 
